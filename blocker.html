@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="build/react.js"></script>
+    <script src="build/JSXTransformer.js"></script>
+
+    <style>
+        div {
+            margin: 3px;
+            padding: 7px;
+            border: 1px solid grey;
+        }
+    </style>
+</head>
+<body>
+<div id="blocker"></div>
+<script type="text/jsx">
+    var Block = React.createClass({
+        render: function () {
+            var block = this.props.block.label;
+            var nestedBlocks = "";
+            if (this.props.block.nested) {
+                var nestedBlocks = this.props.block.nested.map(function (block) {
+                    return (<Block block={block}/>);
+                });
+            }
+            return (<div>
+                <p>{block}</p>
+                {nestedBlocks}
+            </div>)
+        }
+    });
+
+    var Blocker = React.createClass({
+        getInitialState: function () {
+            return {
+                block: {
+                    label: "root",
+                    nested: [
+                        {
+                            label: "sub1"
+                            
+                        }, {
+                            label: "sub2"
+                        }
+                    ]
+                }
+            }
+        },
+        render: function () {
+            return (<Block block={this.state.block}/>)
+        }
+    });
+
+    React.render(
+            <Blocker/>,
+            document.getElementById('blocker')
+    );;
+
+</script>
+</body>
+</html>
