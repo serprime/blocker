@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="build/react.js"></script>
+    <script src="build/react-with-addons.js"></script>
     <script src="build/JSXTransformer.js"></script>
 
     <style>
@@ -16,17 +16,24 @@
 <div id="blocker"></div>
 <script type="text/jsx">
     var Block = React.createClass({
+        addNested: function () {
+            this.props.propagateAddNested({nested: {$push: [{label: "new"}]}});
+        },
+        handlePropagateAddNested: function (nestedUpdate) {
+//            this.props.propagateAddNested({});
+        },
         render: function () {
             var block = this.props.block.label;
             var nestedBlocks = "";
             if (this.props.block.nested) {
                 var nestedBlocks = this.props.block.nested.map(function (block) {
-                    return (<Block block={block}/>);
+                    return (<Block block={block} addNested={this.handlePropagateAddNested}/>);
                 });
             }
             return (<div>
                 <p>{block}</p>
                 {nestedBlocks}
+                <button onClick={this.addNested}>add nested</button>
             </div>)
         }
     });
@@ -39,7 +46,7 @@
                     nested: [
                         {
                             label: "sub1"
-                            
+
                         }, {
                             label: "sub2"
                         }
@@ -47,15 +54,19 @@
                 }
             }
         },
+        addNested: function (block) {
+            var newState = React.addons.update(this.state.block, block);
+            this.setState({block: newState});
+        },
         render: function () {
-            return (<Block block={this.state.block}/>)
+            return (<Block block={this.state.block} propagateAddNested={this.addNested}/>)
         }
     });
 
     React.render(
             <Blocker/>,
             document.getElementById('blocker')
-    );;
+    );
 
 </script>
 </body>
