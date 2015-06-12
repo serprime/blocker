@@ -6,9 +6,22 @@
 
     <style>
         div {
+            margin: 0;
+            padding: 0;
+        }
+
+        div.block {
+            vertical-align: top;
+            display: inline-block;
             margin: 3px;
             padding: 7px;
             border: 1px solid grey;
+            border-radius: 3px;
+        }
+
+        div.nested-blocks {
+            vertical-align: bottom;
+            display: inline-block;
         }
     </style>
 </head>
@@ -49,11 +62,11 @@
                     return (<Block block={block} id={id} propagateAddNested={handlePropagateAddNested}/>);
                 });
             }
-            return (<div>
+            return (<div className="block">
                 <pre>id:{this.props.id}</pre>
                 <p>{block}</p>
-                {nestedBlocks}
-                <button onClick={this.addNested}>add nested</button>
+                <div className="nested-blocks">{nestedBlocks}</div>
+                <button onClick={this.addNested}>+</button>
             </div>)
         }
     });
@@ -63,14 +76,25 @@
             return {
                 block: {
                     root: {
-                        label: "root",
+                        label: "biz.poolparty",
                         nested: {
                             b: {
-                                label: "sub1",
+                                label: "extractor",
                                 nested: {}
                             },
                             c: {
-                                label: "sub2",
+                                label: "thesaurus",
+                                nested: {
+                                    e: {
+                                        label: "vocabulary", nested: {}
+                                    },
+                                    f: {
+                                        label: "corpus", nested: {}
+                                    }
+                                }
+                            },
+                            d: {
+                                label: "search",
                                 nested: {}
                             }
                         }
@@ -79,16 +103,8 @@
             }
         },
         addNested: function (block) {
-            l("merge call");
-            d(block);
-            d(this.state.block);
             var newState = React.addons.update(this.state.block, block);
-            l("state:");
-            d(newState);
-
             this.setState({block: newState});
-
-            l("====");
         },
         render: function () {
             return (<Block block={this.state.block["root"]} id="root" propagateAddNested={this.addNested}/>)
