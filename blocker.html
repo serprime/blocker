@@ -9,7 +9,11 @@
             margin: 0;
             padding: 0;
         }
-
+        p.label {
+            text-align: center;
+            font-weight: bold;
+            font-family: monospace;
+        }
         div.block {
             vertical-align: top;
             display: inline-block;
@@ -63,8 +67,7 @@
                 });
             }
             return (<div className="block">
-                <pre>id:{this.props.id}</pre>
-                <p>{block}</p>
+                <p className="label">{block}</p>
                 <div className="nested-blocks">{nestedBlocks}</div>
                 <button onClick={this.addNested}>+</button>
             </div>)
