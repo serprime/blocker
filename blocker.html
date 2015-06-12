@@ -15,22 +15,42 @@
 <body>
 <div id="blocker"></div>
 <script type="text/jsx">
+    function l(msg) {
+        console.log(msg);
+    }
+    function d(msg) {
+        console.dir(msg);
+    }
+    var key = 0;
+    var getKey = function () {
+        return ++key;
+    };
+
     var Block = React.createClass({
         addNested: function () {
-            this.props.propagateAddNested({nested: {$push: [{label: "new"}]}});
+            var block = {};
+            block[getKey()] = {label: "new", nested: {}};
+            this.handlePropagateAddNested({$merge: block});
         },
-        handlePropagateAddNested: function (nestedUpdate) {
-//            this.props.propagateAddNested({});
+        handlePropagateAddNested: function (nested) {
+            var block = {};
+            block[this.props.id] = {nested: nested};
+
+            this.props.propagateAddNested(block);
         },
         render: function () {
             var block = this.props.block.label;
             var nestedBlocks = "";
             if (this.props.block.nested) {
-                var nestedBlocks = this.props.block.nested.map(function (block) {
-                    return (<Block block={block} addNested={this.handlePropagateAddNested}/>);
+                var nested = this.props.block.nested;
+                var handlePropagateAddNested = this.handlePropagateAddNested;
+                nestedBlocks = Object.keys(nested).map(function (id) {
+                    var block = nested[id];
+                    return (<Block block={block} id={id} propagateAddNested={handlePropagateAddNested}/>);
                 });
             }
             return (<div>
+                <pre>id:{this.props.id}</pre>
                 <p>{block}</p>
                 {nestedBlocks}
                 <button onClick={this.addNested}>add nested</button>
@@ -42,24 +62,36 @@
         getInitialState: function () {
             return {
                 block: {
-                    label: "root",
-                    nested: [
-                        {
-                            label: "sub1"
-
-                        }, {
-                            label: "sub2"
+                    root: {
+                        label: "root",
+                        nested: {
+                            b: {
+                                label: "sub1",
+                                nested: {}
+                            },
+                            c: {
+                                label: "sub2",
+                                nested: {}
+                            }
                         }
-                    ]
+                    }
                 }
             }
         },
         addNested: function (block) {
+            l("merge call");
+            d(block);
+            d(this.state.block);
             var newState = React.addons.update(this.state.block, block);
+            l("state:");
+            d(newState);
+
             this.setState({block: newState});
+
+            l("====");
         },
         render: function () {
-            return (<Block block={this.state.block} propagateAddNested={this.addNested}/>)
+            return (<Block block={this.state.block["root"]} id="root" propagateAddNested={this.addNested}/>)
         }
     });
 
