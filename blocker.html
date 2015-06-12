@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="build/react-with-addons.js"></script>
+    <script src="build/JSXTransformer.js"></script>
+
+    <style>
+        div {
+            margin: 0;
+            padding: 0;
+        }
+        p.label {
+            text-align: center;
+            font-weight: bold;
+            font-family: monospace;
+        }
+        div.block {
+            vertical-align: top;
+            display: inline-block;
+            margin: 3px;
+            padding: 7px;
+            border: 1px solid grey;
+            border-radius: 3px;
+        }
+
+        div.nested-blocks {
+            vertical-align: bottom;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+<div id="blocker"></div>
+<script type="text/jsx">
+    function l(msg) {
+        console.log(msg);
+    }
+    function d(msg) {
+        console.dir(msg);
+    }
+    var key = 0;
+    var getKey = function () {
+        return ++key;
+    };
+
+    var Block = React.createClass({
+        addNested: function () {
+            var block = {};
+            block[getKey()] = {label: "new", nested: {}};
+            this.handlePropagateAddNested({$merge: block});
+        },
+        handlePropagateAddNested: function (nested) {
+            var block = {};
+            block[this.props.id] = {nested: nested};
+
+            this.props.propagateAddNested(block);
+        },
+        render: function () {
+            var block = this.props.block.label;
+            var nestedBlocks = "";
+            if (this.props.block.nested) {
+                var nested = this.props.block.nested;
+                var handlePropagateAddNested = this.handlePropagateAddNested;
+                nestedBlocks = Object.keys(nested).map(function (id) {
+                    var block = nested[id];
+                    return (<Block block={block} id={id} propagateAddNested={handlePropagateAddNested}/>);
+                });
+            }
+            return (<div className="block">
+                <p className="label">{block}</p>
+                <div className="nested-blocks">{nestedBlocks}</div>
+                <button onClick={this.addNested}>+</button>
+            </div>)
+        }
+    });
+
+    var Blocker = React.createClass({
+        getInitialState: function () {
+            return {
+                block: {
+                    root: {
+                        label: "biz.poolparty",
+                        nested: {
+                            b: {
+                                label: "extractor",
+                                nested: {}
+                            },
+                            c: {
+                                label: "thesaurus",
+                                nested: {
+                                    e: {
+                                        label: "vocabulary", nested: {}
+                                    },
+                                    f: {
+                                        label: "corpus", nested: {}
+                                    }
+                                }
+                            },
+                            d: {
+                                label: "search",
+                                nested: {}
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        addNested: function (block) {
+            var newState = React.addons.update(this.state.block, block);
+            this.setState({block: newState});
+        },
+        render: function () {
+            return (<Block block={this.state.block["root"]} id="root" propagateAddNested={this.addNested}/>)
+        }
+    });
+
+    React.render(
+            <Blocker/>,
+            document.getElementById('blocker')
+    );
+
+</script>
+</body>
+</html>
